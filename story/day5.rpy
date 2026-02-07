@@ -81,7 +81,7 @@ label ending_burnout:
     return
 
 label ending_social_failure:
-    scene bg park
+    scene bg os
     "Концовка: Душа Компании (но на пересдачу)"
     "Балл [final_gpa] вряд ли порадует родителей."
     "Но друзья тащат тебя в бар."
