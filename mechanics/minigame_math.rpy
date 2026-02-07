@@ -163,7 +163,7 @@ init python:
 label run_exam_math:
     python:
         # Помощь Аяна: одна плитка 16 уже на поле (и меньше случайных плиток)
-        if store.helped_ayan:
+        if store.studied_matan:
             math_game = Game2048(starting_tile=16, starting_tiles=2)
         else:
             math_game = Game2048(starting_tiles=3)

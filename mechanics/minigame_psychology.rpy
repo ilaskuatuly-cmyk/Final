@@ -49,10 +49,10 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options, prefill
                 drag_name target_id
                 droppable (False if (prefilled and target_id in prefilled) else True)
                 draggable False
-                xpos 400 + (i*400)
+                xpos 400 + (i*500)
                 ypos 400
                 frame:
-                    xsize 300
+                    xsize 600
                     ysize 200
                     background "#34495e"
                     text "Аспект: " + target_id color "#fff" align (0.5, 0.1) font "DejaVuSans.ttf"
@@ -69,7 +69,7 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options, prefill
                 drag_name opt
                 droppable False
                 draggable True
-                xpos 200 + (i*200)
+                xpos 200 + (i*350)
                 ypos 700
                 frame:
                     background "#e67e22"
