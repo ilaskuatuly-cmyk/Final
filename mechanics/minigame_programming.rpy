@@ -1,6 +1,7 @@
 init python:
     import time
     import copy
+    import renpy.store as store
 
     class RobotGrid:
         def __init__(self, level_layout):
@@ -161,8 +162,6 @@ init python:
             self.is_executing = False
             
             return result
-
-    # Функция для получения иконки команды
     def get_command_icon(cmd):
         icons = {
             "Forward": "→",
@@ -199,16 +198,20 @@ init python:
             narrator("Уровень 1 не пройден. Попробуйте еще раз позже.")
             return score
             
-        # Уровень 2: Обход стены
+        # Уровень 2: Обход препятствий (сложнее)
         narrator("Уровень 2: Обход препятствия")
         narrator("Робот должен обойти стену справа.")
         level2 = [
             "..G..",
-            "..#..",
+            ".#.#.",
+            ".#.#.",
             "S...."
         ]
         
-        res = renpy.call_screen("robot_minigame_screen", level_data=level2, level_name="Уровень 2")
+        # Помощь Аяна: первые ДВЕ правильные команды заранее выставлены
+        # (только если игрок ранее получил помощь)
+        prefill_level2 = ["Forward", "Forward"] if store.helped_ayan else None
+        res = renpy.call_screen("robot_minigame_screen", level_data=level2, level_name="Уровень 2", prefill_commands=prefill_level2)
         if res == "skip":
             score += 0
             narrator("Уровень пропущен.")
@@ -219,14 +222,15 @@ init python:
             narrator("Уровень 2 не пройден.")
             return score
             
-        # Уровень 3: Сложный лабиринт
+        # Уровень 3: Более сложный лабиринт
         narrator("Уровень 3: Сложный маршрут")
         narrator("Найдите путь через лабиринт.")
         level3 = [
             "G...#",
-            ".#..#",
+            "##.#.",
+            "...#.",
             ".#...",
-            "S...."
+            "S..##"
         ]
         
         res = renpy.call_screen("robot_minigame_screen", level_data=level3, level_name="Уровень 3")
@@ -272,13 +276,36 @@ init:
         padding (25, 10)
         xsize 200
 
+    # Анимации для экрана мини-игры
+    transform robot_panel_slide_in(delay=0.0, offset=60):
+        alpha 0.0
+        yoffset offset
+        pause delay
+        parallel:
+            linear 0.35 alpha 1.0
+        parallel:
+            easeout 0.35 yoffset 0
+
+    transform robot_goal_pulse():
+        alpha 1.0
+        linear 0.8 alpha 0.6
+        linear 0.8 alpha 1.0
+        repeat
+
+    transform robot_pos_blink():
+        alpha 1.0
+        linear 0.25 alpha 0.5
+        linear 0.25 alpha 1.0
+        repeat
+
 # Основной экран мини-игры
-screen robot_minigame_screen(level_data, level_name="Уровень"):
+screen robot_minigame_screen(level_data, level_name="Уровень", prefill_commands=None):
     default grid = RobotGrid(level_data)
     default message = ""
     default message_timer = 0
     default show_help = False
     default executing_all = False
+    default prefill_applied = False
     
     # Таймер для автоматического скрытия сообщений
     if message_timer > 0:
@@ -291,10 +318,17 @@ screen robot_minigame_screen(level_data, level_name="Уровень"):
         # Завершили выполнение
         timer 0.1 action SetScreenVariable("executing_all", False)
     
+    # Помощь: предварительно заполнить команды (только один раз)
+    if prefill_commands and not prefill_applied:
+        python:
+            for cmd in prefill_commands:
+                grid.add_command(cmd)
+        $ prefill_applied = True
+    
     add "#2c3e50"
     
     # Верхняя панель с информацией
-    frame:
+    frame at robot_panel_slide_in(0.0, 40):
         xalign 0.5
         ypos 20
         xsize 800
@@ -326,7 +360,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень"):
                         color "#f1c40f"
     
     # Игровое поле
-    frame:
+    frame at robot_panel_slide_in(0.08, 80):
         xalign 0.5
         ypos 120
         background "#34495e"
@@ -371,9 +405,13 @@ screen robot_minigame_screen(level_data, level_name="Уровень"):
                                 size 40
                                 color text_color
                                 bold True
+                        if cell == 'G':
+                            add Solid("#ffffff55") at robot_goal_pulse()
+                        if (x, y) == grid.robot_pos:
+                            add Solid("#00000033") at robot_pos_blink()
     
     # Панель команд
-    frame:
+    frame at robot_panel_slide_in(0.16, 80):
         xalign 0.5
         ypos 450
         xsize 900
@@ -400,7 +438,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень"):
                         style "robot_command_button"
     
     # Область программы
-    frame:
+    frame at robot_panel_slide_in(0.24, 80):
         xalign 0.5
         ypos 580
         xsize 900
@@ -452,7 +490,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень"):
                                     bold True
                                     
     # Панель управления
-    frame:
+    frame at robot_panel_slide_in(0.32, 80):
         xalign 0.5
         ypos 750
         background "transparent"
@@ -495,3 +533,4 @@ screen robot_minigame_screen(level_data, level_name="Уровень"):
                 color "#fff"
                 bold True
                 xalign 0.5
+

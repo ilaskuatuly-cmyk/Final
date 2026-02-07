@@ -5,6 +5,9 @@
 
 init python:
     import renpy.store as store
+    
+    # Таймер на уровень (в секундах)
+    LEVEL_TIME_LIMIT = 90.0
 
     # Направления: 0=Вверх, 1=Вправо, 2=Вниз, 3=Влево
     DIRS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
@@ -172,11 +175,11 @@ init python:
                     "end": (4, 4),
                     "end_dir": 3,
                     "grid": [
-                        [("straight", 1), ("corner", 1), ("straight", 0), ("corner", 2), ("straight", 0)],
-                        [("corner", 0), ("tee", 1), ("straight", 1), ("corner", 3), ("straight", 0)],
+                        [("straight", 1), ("straight", 1), ("straight", 1), ("straight", 1), ("corner", 2)],
+                        [("corner", 0), ("tee", 1), ("straight", 0), ("corner", 3), ("straight", 0)],
                         [("straight", 0), ("corner", 0), ("cross", 0), ("corner", 1), ("straight", 0)],
                         [("corner", 1), ("straight", 1), ("tee", 2), ("corner", 2), ("straight", 0)],
-                        [("straight", 0), ("corner", 0), ("straight", 0), ("corner", 1), ("straight", 1)]
+                        [("straight", 0), ("corner", 0), ("straight", 0), ("corner", 1), ("corner", 3)]
                     ]
                 },
                 {
@@ -186,7 +189,7 @@ init python:
                     "end": (5, 3),
                     "end_dir": 0,
                     "grid": [
-                        [("corner", 1), ("straight", 1), ("tee", 0), ("straight", 1), ("corner", 2), ("straight", 0)],
+                        [("corner", 1), ("straight", 1), ("tee", 0), ("straight", 1), ("corner", 2), ("tee", 3)],
                         [("straight", 0), ("corner", 0), ("straight", 1), ("corner", 3), ("straight", 1), ("corner", 2)],
                         [("tee", 1), ("straight", 0), ("corner", 2), ("cross", 0), ("corner", 0), ("straight", 0)],
                         [("corner", 3), ("straight", 1), ("tee", 2), ("corner", 1), ("straight", 1), ("corner", 0)],
@@ -195,18 +198,19 @@ init python:
                     ]
                 },
                 {
-                    "size": 6,
-                    "start": (2, 0),
+                    "size": 7,
+                    "start": (0, 0),
                     "start_dir": 1,
-                    "end": (3, 5),
+                    "end": (6, 6),
                     "end_dir": 3,
                     "grid": [
-                        [("straight", 0), ("corner", 1), ("straight", 1), ("corner", 2), ("straight", 0), ("corner", 3)],
-                        [("corner", 0), ("tee", 1), ("straight", 0), ("corner", 3), ("tee", 2), ("straight", 1)],
-                        [("straight", 1), ("corner", 2), ("cross", 0), ("corner", 1), ("straight", 0), ("corner", 0)],
-                        [("corner", 3), ("straight", 0), ("corner", 0), ("tee", 3), ("straight", 1), ("straight", 1)],
-                        [("straight", 0), ("corner", 1), ("tee", 0), ("corner", 2), ("straight", 0), ("corner", 1)],
-                        [("corner", 2), ("straight", 1), ("corner", 3), ("straight", 0), ("corner", 0), ("straight", 1)]
+                        [("straight", 1), ("straight", 1), ("straight", 1), ("straight", 1), ("straight", 1), ("straight", 1), ("corner", 2)],
+                        [("corner", 0), ("tee", 1), ("straight", 0), ("corner", 3), ("straight", 1), ("tee", 0), ("straight", 0)],
+                        [("straight", 0), ("corner", 0), ("cross", 0), ("corner", 1), ("straight", 0), ("corner", 2), ("straight", 0)],
+                        [("corner", 1), ("straight", 1), ("tee", 2), ("corner", 2), ("straight", 1), ("corner", 1), ("straight", 0)],
+                        [("straight", 0), ("corner", 1), ("straight", 0), ("corner", 2), ("tee", 3), ("straight", 1), ("straight", 0)],
+                        [("corner", 0), ("straight", 1), ("corner", 1), ("straight", 0), ("corner", 3), ("straight", 1), ("straight", 0)],
+                        [("straight", 0), ("corner", 0), ("straight", 0), ("corner", 1), ("straight", 0), ("corner", 0), ("corner", 3)]
                     ]
                 }
             ]
@@ -235,13 +239,13 @@ init python:
                 self.grid.append(new_row)
 
     def score_for_level(level_idx, rotations, elapsed):
-        # Базовые очки за уровень
-        base = [35, 35, 30][level_idx]
-        # Штрафы
-        rot_pen = min(20, rotations * 0.5)
-        time_pen = min(20, elapsed * 0.2)
+        # Базовые очки за уровень (более справедливо)
+        base = [40, 35, 35][level_idx]
+        # Штрафы только после "разумных" порогов
+        rot_pen = max(0, rotations - 10) * 0.4
+        time_pen = max(0, elapsed - 30.0) * 0.15
         # Минимум за успешно пройденный уровень
-        return max(10, int(base - rot_pen - time_pen))
+        return max(20, int(base - rot_pen - time_pen))
 
 
 label run_exam_networks:
@@ -302,7 +306,7 @@ screen network_pipes_screen(state):
     # Таймер
     timer 0.1 repeat True action [
         SetField(state, "elapsed", state.elapsed + 0.1),
-        If(state.elapsed >= 90.0, Return("timeout"))
+        If(state.elapsed >= LEVEL_TIME_LIMIT, Return("timeout"))
     ]
     timer 0.2 repeat True action Function(update_status, state)
 
@@ -324,7 +328,7 @@ screen network_pipes_screen(state):
                 xalign 0.5
             
             python:
-                time_left = max(0, 90.0 - state.elapsed)
+                time_left = max(0, LEVEL_TIME_LIMIT - state.elapsed)
                 time_color = "#e76f51" if time_left < 10 else "#778da9"
                 
             text "Осталось времени: [time_left:.1f]с | Повороты: [state.rotations]":

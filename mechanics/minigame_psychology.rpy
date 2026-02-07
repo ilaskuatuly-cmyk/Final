@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 init python:
+    import renpy.store as store
 
     # Psychology Minigame
     # Drag emotions to the correct patient statement.
@@ -20,12 +21,14 @@ init python:
             return True
         return False
 
-screen minigame_psychology_screen(scenario_text, correct_pairs, options):
+screen minigame_psychology_screen(scenario_text, correct_pairs, options, prefilled=None):
     # correct_pairs: dict of {target_id: correct_emotion_name}
     # options: list of emotion names to drag
     
     default solved_count = 0
     default target_count = len(correct_pairs)
+    # Увеличиваем расстояние между словами для читабельности
+    default display_text = scenario_text.replace(" ", "  ")
     
     add "#2c3e50"
     
@@ -33,8 +36,9 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options):
         xalign 0.5
         yalign 0.05
         text "Проанализируйте пациента:" color "#fff" size 40 bold True font "DejaVuSans.ttf"
-        text scenario_text color "#bdc3c7" size 28 italic True font "DejaVuSans.ttf"
-    
+
+        text display_text color "#bdc3c7" size 28 italic True font "DejaVuSans.ttf"
+
     # Drag Group
     draggroup:
         # Drop Zones (Representing aspects of the patient)
@@ -43,7 +47,7 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options):
         for i, (target_id, correct_emo) in enumerate(correct_pairs.items()):
             drag:
                 drag_name target_id
-                droppable True
+                droppable (False if (prefilled and target_id in prefilled) else True)
                 draggable False
                 xpos 400 + (i*400)
                 ypos 400
@@ -52,7 +56,10 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options):
                     ysize 200
                     background "#34495e"
                     text "Аспект: " + target_id color "#fff" align (0.5, 0.1) font "DejaVuSans.ttf"
-                    text "(Перетащите сюда эмоцию)" color "#7f8c8d" align (0.5, 0.5) size 20 font "DejaVuSans.ttf"
+                    if prefilled and target_id in prefilled:
+                        text "Подсказка: " + prefilled[target_id] color "#f1c40f" align (0.5, 0.5) size 22 font "DejaVuSans.ttf"
+                    else:
+                        text "(Перетащите сюда эмоцию)" color "#7f8c8d" align (0.5, 0.5) size 20 font "DejaVuSans.ttf"
 
                 dropped (lambda d, drop, t=target_id, c=correct_emo: psycho_dropped(d, drop, c))
 
@@ -100,6 +107,17 @@ init python:
                 store.psycho_session_score -= 1  # Penalty
 
     store.psycho_session_score = 0
+    
+    def _score_psycho_session(target_count, max_points):
+        """
+        Более строгая шкала: максимальные баллы за все правильные,
+        половина — за ошибку в одном аспекте.
+        """
+        if store.psycho_session_score >= target_count:
+            return max_points
+        elif store.psycho_session_score == target_count - 1:
+            return int(max_points * 0.5)
+        return 0
 
     def run_minigame_psychology():
         total = 0
@@ -109,26 +127,32 @@ init python:
         # Scenario 1
         store.psycho_session_score = 0
         s1 = "Пациент постоянно шутит, избегает зрительного контакта."
-        pairs1 = {"Лицо": "Страх", "Речь": "Защита"}
-        opts1 = ["Радость", "Страх", "Защита", "Гнев"]
+        pairs1 = {"Лицо": "Радость", "Речь": "Защита"}
+        opts1 = ["Радость", "Страх", "Защита", "Гнев", "Тревога"]
+        
+        # Помощь Дианы: один правильный ответ уже заполнен
+        prefilled = None
+        if store.trusted_diana:
+            prefilled = {"Речь": "Защита"}
+            store.psycho_session_score = 1
+            opts1 = [o for o in opts1 if o != "Защита"]
         
         res = renpy.call_screen("minigame_psychology_screen", 
                           scenario_text=s1, 
                           correct_pairs=pairs1, 
-                          options=opts1)
+                          options=opts1,
+                          prefilled=prefilled)
         
         if res == "skip": return 0
                           
-        # Score calculation
-        # If score >= 2 (max), full points.
-        if store.psycho_session_score >= 2: total += 35
-        elif store.psycho_session_score == 1: total += 15
+        # Score calculation (сложнее, чем раньше)
+        total += _score_psycho_session(len(pairs1), 30)
 
         # Scenario 2
         store.psycho_session_score = 0
         s2 = "Агрессивно реагирует на вопросы о матери."
-        pairs2 = {"Реакция": "Проекция", "Тон": "Гнев"}
-        opts2 = ["Отрицание", "Проекция", "Гнев", "Печаль"]
+        pairs2 = {"Реакция": "Отрицание", "Тон": "Гнев"}
+        opts2 = ["Отрицание", "Проекция", "Гнев", "Печаль", "Стыд"]
         
         res = renpy.call_screen("minigame_psychology_screen",
                           scenario_text=s2,
@@ -137,16 +161,30 @@ init python:
                           
         if res == "skip": return 0
                           
-        if store.psycho_session_score >= 2: total += 35
-        elif store.psycho_session_score == 1: total += 15
+        total += _score_psycho_session(len(pairs2), 30)
         
-        # Scenario 3 (Therapy choices - easier, just choice)
+        # Scenario 3 (дополнительная ситуация, сложнее по смыслу)
+        store.psycho_session_score = 0
+        s3 = "Пациент избегает задач, обвиняет окружение и резко меняет тему."
+        pairs3 = {"Поведение": "Избегание", "Речь": "Тревога"}
+        opts3 = ["Избегание", "Рационализация", "Проекция", "Тревога", "Безразличие"]
+        
+        res = renpy.call_screen("minigame_psychology_screen",
+                          scenario_text=s3,
+                          correct_pairs=pairs3,
+                          options=opts3)
+                          
+        if res == "skip": return 0
+        
+        total += _score_psycho_session(len(pairs3), 20)
+        
+        # Scenario 4 (Therapy choices - итог)
         renpy.say(None, "Выберите терапию.")
         res = renpy.call_screen("exam_choice_screen", 
                                 title="Терапия", 
                                 question="Клиент плачет. Ваши действия?", 
-                                options=["Обнять", "Молчать (Поддержка)", "Сменить тему"])
-        if res == 1: total += 30
+                                options=["Обнять", "Утешить", "Оставить в покое", "Попросить объяснить причину"])
+        if res == 1: total += 20
         elif res == "skip": return 0
         
         return total

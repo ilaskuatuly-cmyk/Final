@@ -3,15 +3,26 @@ init python:
     import renpy.store as store
 
     class Game2048:
-        def __init__(self):
+        def __init__(self, starting_tile=None, starting_tiles=3):
             self.grid = [[0 for _ in range(4)] for _ in range(4)]
             self.score = 0
             self.timer = 90.0
             self.game_over = False
             self.win = False
             self.max_tile = 0
-            self.spawn_tile()
-            self.spawn_tile()
+            
+            if starting_tile:
+                self.place_tile(starting_tile)
+            for _ in range(starting_tiles):
+                self.spawn_tile()
+
+        def place_tile(self, value):
+            """Размещает плитку заданного значения в случайной пустой клетке."""
+            empty_cells = [(r, c) for r in range(4) for c in range(4) if self.grid[r][c] == 0]
+            if empty_cells:
+                r, c = random.choice(empty_cells)
+                self.grid[r][c] = value
+                self.update_max_tile()
 
         def spawn_tile(self):
             empty_cells = [(r, c) for r in range(4) for c in range(4) if self.grid[r][c] == 0]
@@ -91,9 +102,9 @@ init python:
             # Обновляем максимальную плитку в любом случае для UI
             self.update_max_tile()
             
-            # Важно: заставляем Ren'Py перерисовать экран
+            # заставляем Ren'Py перерисовать экран
             renpy.restart_interaction()
-            return None # Явно возвращаем None
+            return None 
 
         def transpose_grid(self):
             self.grid = [list(row) for row in zip(*self.grid)]
@@ -151,7 +162,11 @@ init python:
 
 label run_exam_math:
     python:
-        math_game = Game2048()
+        # Помощь Аяна: одна плитка 16 уже на поле (и меньше случайных плиток)
+        if store.helped_ayan:
+            math_game = Game2048(starting_tile=16, starting_tiles=2)
+        else:
+            math_game = Game2048(starting_tiles=3)
     
     "Экзамен: Математический анализ"
     "Задача: Решите головоломку 2048 (Версия с ограничением времени)."
@@ -166,8 +181,8 @@ label run_exam_math:
     if math_game.win or math_game.max_tile >= 256:
         "Блестяще! Вы достигли 256!"
     elif _return == "skip":
-        $ final_score = 0
-        "Экзамен пропущен. (0 баллов)"
+        $ final_score = [math_game.max_tile]
+        "Экзамен пропущен."
     else:
         "Экзамен завершен."
         "Максимальная плитка: [math_game.max_tile]."
@@ -194,12 +209,12 @@ screen math_2048_screen(game):
 
     add "#1a1a2e"
     
-    vbox:
+    vbox at math_panel_fade_in(0.0):
         xalign 0.5
         ypos 50
         spacing 20
         
-        frame:
+        frame at math_panel_fade_in(0.08):
             background "#16213e"
             padding (20, 10)
             xalign 0.5
@@ -210,7 +225,7 @@ screen math_2048_screen(game):
                         size 18
                         color "#888"
                         xalign 0.5
-                    text "[game.timer:.1f]с":
+                    text "[game.timer:.1f]с" at math_timer_pulse():
                         size 32
                         color "#e94560"
                         bold True
@@ -225,7 +240,7 @@ screen math_2048_screen(game):
                         bold True
         
         # Сетка 2048
-        frame:
+        frame at math_panel_fade_in(0.16):
             background "#2c3e50"
             padding (10, 10)
             xalign 0.5
@@ -310,3 +325,15 @@ init:
         size 32
         bold True
         align (0.5, 0.5)
+
+    # Анимации для 2048
+    transform math_panel_fade_in(delay=0.0):
+        alpha 0.0
+        pause delay
+        linear 0.35 alpha 1.0
+
+    transform math_timer_pulse():
+        alpha 1.0
+        linear 0.6 alpha 0.6
+        linear 0.6 alpha 1.0
+        repeat
