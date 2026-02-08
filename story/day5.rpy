@@ -1,5 +1,6 @@
 label day5:
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     
     show screen day_indicator("День 5")
     
@@ -8,18 +9,20 @@ label day5:
     "Ну вот, еще немного и свобода."
     
     scene bg hallway
+    play music "audio/Soundtracks/hall.mp3" fadein 1.0
     "В коридоре стало тихо. Видимо почти все сдали."
     
-    $ run_exam("english")
+    $ run_exam("english", resume_music="audio/Soundtracks/hall.mp3")
     
     "Спикинг пролетел незаметно. Времени подумать особо не было."
     "Думаю фразы из конспектов подошли по теме."
     
     "И наконец... Сети. Достаточно мутный предмет для меня."
     
-    $ run_exam("networks")
+    $ run_exam("networks", resume_music="audio/Soundtracks/hall.mp3")
     
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     "Всё. Кончилось."
     "Осталось только дождаться результатов."
     
@@ -27,6 +30,7 @@ label day5:
 
 label endings:
     scene bg room
+    play music "audio/Soundtracks/Ending.mp3" fadein 1.0
     
     # Расчет результатов
     $ final_gpa = calculate_gpa()
@@ -48,7 +52,7 @@ label endings:
         jump ending_academic_loner
         
     # 3. Low GPA + Social (Social Failure/Party)
-    elif final_gpa < 2.5 and total_relationships >= 4:
+    elif final_gpa < 3.5 and final_gpa > 2.5 and total_relationships >= 4:
         jump ending_social_failure
         
     # 4. Burnout (Average/Low GPA + Low social)
@@ -57,6 +61,7 @@ label endings:
 
 label ending_balanced:
     scene bg cafeteria
+    play music "audio/Soundtracks/Cafeteria.mp3" fadein 1.0
     "Концовка: Золотая Середина"
     "Ты смотришь на свой средний балл: [final_gpa]. Отлично."
     "Вокруг сидят друзья. Аян, Диана, Тимур, Алина."
@@ -65,6 +70,7 @@ label ending_balanced:
 
 label ending_academic_loner:
     scene bg room
+    play music "audio/Soundtracks/Ending.mp3" fadein 1.0
     "Концовка: Одинокий Волк"
     "Ты открываешь зачетку. Одни 'А'. Средний балл: [final_gpa]."
     "Ты лучший на потоке."
@@ -74,6 +80,7 @@ label ending_academic_loner:
 
 label ending_burnout:
     scene bg room
+    play music "audio/Soundtracks/Ending.mp3" fadein 1.0
     "Концовка: Выгорание"
     "Сессия закрыта. Балл: [final_gpa]. Паршиво, но хотя бы всё закончилось."
     "Но внутри — пустота. Ты просто хочешь спать следующие три дня."
@@ -82,8 +89,11 @@ label ending_burnout:
 
 label ending_social_failure:
     scene bg os
+    play music "audio/Soundtracks/Ending.mp3" fadein 1.0
     "Концовка: Душа Компании (но на пересдачу)"
     "Балл [final_gpa] вряд ли порадует родителей."
+    scene bg cafe
+    play music "audio/Soundtracks/Cafeteria.mp3" fadein 1.0
     "Но друзья тащат тебя отпраздновать конец триместра."
     "Тимур: Главное не отчисление, а дальше вместе прорвёмся."
     "По крайней мере, ты не один."
@@ -147,4 +157,3 @@ screen final_results_screen(gpa):
                 style "exam_button"
                 text_style "exam_button_text"
                 action Return()
-

@@ -1,5 +1,6 @@
 label day1:
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     
     show screen day_indicator("День 1")
     
@@ -13,6 +14,7 @@ label day1:
     "Точно. Я [player_name]. И мне нужно выжить."
 
     scene bg hall # Placeholder
+    play music "audio/Soundtracks/hall.mp3" fadein 1.0
     "В университете шумно. Студенты сбились в кучки, лихорадочно листая конспекты."
 
     scene bg hallway
@@ -42,7 +44,7 @@ label day1:
     "Вот и проктор. Пора в аудиторию."
     
     # EXAM 1: PROGRAMMING
-    $ run_exam("programming")
+    $ run_exam("programming", resume_music="audio/Soundtracks/hall.mp3")
     
     "Ты выходишь из аудитории, выдыхая с облегчением."
     "Первый бой позади. Но расслабляться рано. Психология через час."
@@ -67,9 +69,10 @@ label day1:
     "Ты заходишь в кабинет психологии. Преподаватель смотрит на тебя как на подопытного."
     
     # EXAM 2: PSYCHOLOGY
-    $ run_exam("psychology")
+    $ run_exam("psychology", resume_music="audio/Soundtracks/hall.mp3")
     
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     "Вечер. Ты падаешь на кровать без сил."
     "Два экзамена позади. Осталось четыре."
     "Нужно поспать."

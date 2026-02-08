@@ -1,6 +1,7 @@
 label day4:
     scene bg room
     
+    
     show screen day_indicator("День 4")
     
     "Четверг. Затишье перед бурей."
@@ -9,6 +10,7 @@ label day4:
     "Вся группа собралась в столовой."
     
     scene bg cafeteria # Placeholder
+    play music "audio/Soundtracks/Cafeteria.mp3" fadein 1.0
     
     show ayan at left
     show diana at right
@@ -46,9 +48,9 @@ label day4:
     hide timur
     
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     "Ты перечитываешь конспекты по английскому."
     "Лишь бы попалась легкая тема."
     "Ладно, пора спать."
     
     jump day5
-

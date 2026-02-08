@@ -233,7 +233,7 @@ init python:
             "S..##"
         ]
         
-        res = renpy.call_screen("robot_minigame_screen", level_data=level3, level_name="Уровень 3")
+        res = renpy.call_screen("robot_minigame_screen", level_data=level3, level_name="Уровень 3", ui_y_offset=00)
         if res == "skip":
             score += 0
             narrator("Уровень пропущен.")
@@ -299,7 +299,7 @@ init:
         repeat
 
 # Основной экран мини-игры
-screen robot_minigame_screen(level_data, level_name="Уровень", prefill_commands=None):
+screen robot_minigame_screen(level_data, level_name="Уровень", prefill_commands=None, ui_y_offset=0):
     default grid = RobotGrid(level_data)
     default message = ""
     default message_timer = 0
@@ -330,7 +330,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
     # Верхняя панель с информацией
     frame at robot_panel_slide_in(0.0, 40):
         xalign 0.5
-        ypos 20
+        ypos 20 + ui_y_offset
         xsize 800
         background "#34495e"
         padding (20, 10)
@@ -362,7 +362,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
     # Игровое поле
     frame at robot_panel_slide_in(0.08, 80):
         xalign 0.5
-        ypos 120
+        ypos 120 + ui_y_offset
         background "#34495e"
         padding (10, 10)
         
@@ -413,7 +413,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
     # Панель команд
     frame at robot_panel_slide_in(0.16, 80):
         xalign 0.5
-        ypos 450
+        ypos 490 + ui_y_offset
         xsize 900
         background "#34495e"
         padding (20, 20)
@@ -440,7 +440,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
     # Область программы
     frame at robot_panel_slide_in(0.24, 80):
         xalign 0.5
-        ypos 580
+        ypos 640 + ui_y_offset
         xsize 900
         ysize 150
         background "#ecf0f1"
@@ -492,8 +492,8 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
     # Панель управления
     frame at robot_panel_slide_in(0.32, 80):
         xalign 0.5
-        ypos 750
-        background "transparent"
+        ypos 800 + ui_y_offset
+        background "#34495e"
         
         hbox:
             xalign 0.5
@@ -524,7 +524,7 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
         $ msg_bg = "#27ae60" if "Успех" in message else "#e74c3c"
         frame:
             xalign 0.5
-            ypos 820
+            ypos 860 + ui_y_offset
             background msg_bg
             padding (30, 15)
             
@@ -533,4 +533,9 @@ screen robot_minigame_screen(level_data, level_name="Уровень", prefill_co
                 color "#fff"
                 bold True
                 xalign 0.5
+
+
+
+
+
 

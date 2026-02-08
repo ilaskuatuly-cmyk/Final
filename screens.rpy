@@ -342,6 +342,9 @@ style navigation_button:
 
 style navigation_button_text:
     properties gui.text_properties("navigation_button")
+    color "#fff"
+    hover_color "#fff"
+    outlines [(2, "#000c", 0, 0)]
 
 
 ## Экран главного меню #########################################################
@@ -387,21 +390,24 @@ style main_menu_version is main_menu_text
 style main_menu_frame:
     xsize 420
     yfill True
-
-    background "gui/overlay/main_menu.png"
+    background Solid("#00000055")
 
 style main_menu_vbox:
     xalign 1.0
     xoffset -30
     xmaximum 1200
-    yalign 1.0
-    yoffset -30
+    yalign 0.0
+    yoffset 30
 
 style main_menu_text:
     properties gui.text_properties("main_menu", accent=True)
+    color "#0084ff"
+    outlines [(2, "#000c", 0, 0)]
 
 style main_menu_title:
     properties gui.text_properties("title")
+    color "#0084ff"
+    outlines [(3, "#000c", 0, 0)]
 
 style main_menu_version:
     properties gui.text_properties("version")

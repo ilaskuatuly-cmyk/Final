@@ -1,6 +1,7 @@
 label day2:
     scene bg room
     
+    
     show screen day_indicator("День 2")
     
     "День 2. Передышка."
@@ -66,6 +67,7 @@ label day2_park:
 
 label day2_dorm:
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     "Ты решаешь не тратить время впустую и сразу готовиться."
     "Ты открываешь лекции по Матанализу."
     "Пределы, производные, интегралы... Голова кругом."
@@ -77,10 +79,9 @@ label day2_dorm:
 
 label day2_evening:
     scene bg room
+    play music "audio/Soundtracks/Room.mp3" fadein 1.0
     "Вечер наступил слишком быстро."
     "Завтра Криптография и Математический Анализ."
     "Самые сложные предметы."
     
     jump day3
-
-

@@ -59,7 +59,8 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options, prefill
                     if prefilled and target_id in prefilled:
                         text "Подсказка: " + prefilled[target_id] color "#f1c40f" align (0.5, 0.5) size 22 font "DejaVuSans.ttf"
                     else:
-                        text "(Перетащите сюда эмоцию)" color "#7f8c8d" align (0.5, 0.5) size 20 font "DejaVuSans.ttf"
+                        text "(Перетащите сюда эмоцию) \n (Только 1 правильный ответ\n на каждый аспект)" color "#7f8c8d" align (0.5, 0.5) size 20 font "DejaVuSans.ttf"
+                        
 
                 dropped (lambda d, drop, t=target_id, c=correct_emo: psycho_dropped(d, drop, c))
 
@@ -90,7 +91,7 @@ screen minigame_psychology_screen(scenario_text, correct_pairs, options, prefill
         action Return(solved_count)
 
     # Кнопка пропуска
-    textbutton "Пропустить фазу":
+    textbutton "Пропустить экзамен":
         align (0.95, 0.05)
         action Return("skip")
         text_size 16

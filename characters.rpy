@@ -4,6 +4,14 @@ image ayan = "images/Ayan.png"
 image diana = "images/Diana.png"
 image timur = "images/Timur.png"
 image alina = "images/Alina.png"
+image bg room = "images/bg_room.jpg"
+image bg hall = "images/bg_hall.png"
+image bg hallway = "images/bg_hallway.png"
+image bg cafeteria = "images/bg_cafeteria.png"
+image bg classroom = "images/bg_classroom.png"
+image bg os = "images/bg_os.png"
+image bg cafe = "images/bg_cafe.png"
+image bg library = "images/bg_library.png"
 
 # Определение персонажей с привязкой к тегам изображений
 define mc = Character("[player_name]", color="#ffffff") # Главный герой

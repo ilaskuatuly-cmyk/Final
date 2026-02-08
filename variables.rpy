@@ -26,7 +26,21 @@ init python:
     
     player_name = "Студент"
 
+    def normalize_score(value):
+        if isinstance(value, (int, float)):
+            return value
+        if isinstance(value, (list, tuple)):
+            for item in reversed(value):
+                if isinstance(item, (int, float)):
+                    return item
+            return 0
+        try:
+            return int(value)
+        except Exception:
+            return 0
+
     def get_letter_grade(score):
+        score = normalize_score(score)
         if score >= 95: return "A"
         if score >= 90: return "A-"
         if score >= 85: return "B+"
@@ -38,6 +52,7 @@ init python:
         return "F"
 
     def get_gpa_point(score):
+        score = normalize_score(score)
         if score >= 95: return 4.0
         if score >= 90: return 3.67
         if score >= 85: return 3.33
@@ -59,3 +74,6 @@ init python:
         return round(total_gpa / count, 2)
 
 default student_name = "Алекс"
+
+default studied_matan = False
+

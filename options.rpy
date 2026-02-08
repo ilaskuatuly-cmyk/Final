@@ -12,7 +12,7 @@
 ##
 ## Символы "_()", окружающие название, отмечают его как пригодное для перевода.
 
-define config.name = _("FinalProject")
+define config.name = _("Бесконечный летник")
 
 
 ## Определяет, показывать ли заголовок, данный выше, на экране главного меню.
@@ -23,7 +23,7 @@ define gui.show_name = True
 
 ## Версия игры.
 
-define config.version = "1.0"
+
 
 
 ## Текст, помещённый в экран "Об игре". Поместите текст между тройными скобками.
@@ -122,6 +122,7 @@ define config.window_hide_transition = Dissolve(.2)
 ## секунду.
 
 default preferences.text_cps = 0
+default preferences.music_volume = 0.5
 
 
 ## Стандартная задержка авточтения. Большие значения означают долгие ожидания, а

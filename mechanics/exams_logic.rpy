@@ -2,7 +2,7 @@ init python:
     import renpy.store as store
 
     # === GENERAL EXAM CONTROLLER ===
-    def run_exam(subject):
+    def run_exam(subject, resume_music=None):
         """
         Executes a multi-phase exam and returns the total score (0-100).
         """
@@ -12,24 +12,35 @@ init python:
         _window_hide()
         
         if subject == "programming":
+            renpy.music.play("audio/Soundtracks/Programming.mp3", channel="music", fadein=1.0)
             total_score = run_minigame_programming()
             
         elif subject == "psychology":
+            renpy.music.play("audio/Soundtracks/Psychology.mp3", channel="music", fadein=1.0)
             total_score = run_minigame_psychology()
 
         elif subject == "cryptography":
+            renpy.music.play("audio/Soundtracks/Crypto.mp3", channel="music", fadein=1.0)
             total_score = run_phase_cryptography_1()
 
         elif subject == "math_analysis":
+            renpy.music.play("audio/Soundtracks/Math.mp3", channel="music", fadein=1.0)
             renpy.call("run_exam_math")
             total_score = store._return
-             
+              
         elif subject == "english":
+            renpy.music.play("audio/Soundtracks/English.mp3", channel="music", fadein=1.0)
             total_score = run_minigame_english()
 
         elif subject == "networks":
+            renpy.music.play("audio/Soundtracks/Network.mp3", channel="music", fadein=1.0)
             renpy.call("run_exam_networks")
             total_score = store._return
+
+        # Stop exam music after the exam finishes.
+        renpy.music.stop(channel="music", fadeout=0.5)
+        if resume_music:
+            renpy.music.play(resume_music, channel="music", fadein=1.0)
 
         # Clamp and Save
         final_score = int(min(100, max(0, total_score)))
